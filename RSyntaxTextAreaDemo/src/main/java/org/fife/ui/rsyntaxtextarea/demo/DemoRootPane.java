@@ -29,6 +29,8 @@ import org.fife.ui.rtextarea.Gutter;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.fife.ui.rtextarea.LineNumberFormatter;
 import org.fife.ui.rtextarea.LineNumberList;
+import org.fife.ui.rsyntaxtextarea.demo.SyntaxConfig;
+import org.fife.ui.rsyntaxtextarea.demo.SyntaxDefinition;
 
 
 /**
@@ -38,8 +40,8 @@ import org.fife.ui.rtextarea.LineNumberList;
  * @author Robert Futrell
  * @version 1.0
  */
-public class DemoRootPane extends JRootPane implements HyperlinkListener,
-											SyntaxConstants {
+ public class DemoRootPane extends JRootPane implements HyperlinkListener, SyntaxConstants, IRootPane {
+
 
 	private RTextScrollPane scrollPane;
 	private RSyntaxTextArea textArea;
@@ -101,41 +103,17 @@ public class DemoRootPane extends JRootPane implements HyperlinkListener,
 		JMenuBar mb = new JMenuBar();
 
 		JMenu menu = new JMenu("Language");
-		ButtonGroup bg = new ButtonGroup();
-		addSyntaxItem("None", "NoneExample.txt", SYNTAX_STYLE_NONE, bg, menu);
-		addSyntaxItem("6502 Assembler", "Assembler6502.txt", SYNTAX_STYLE_ASSEMBLER_6502, bg, menu);
-		addSyntaxItem("ActionScript", "ActionScriptExample.txt", SYNTAX_STYLE_ACTIONSCRIPT, bg, menu);
-		addSyntaxItem("C",    "CExample.txt", SYNTAX_STYLE_C, bg, menu);
-		addSyntaxItem("C#",    "CSharpExample.txt", SYNTAX_STYLE_CSHARP, bg, menu);
-		addSyntaxItem("Clojure",  "ClojureExample.txt", SYNTAX_STYLE_CLOJURE, bg, menu);
-		addSyntaxItem("CSS",  "CssExample.txt", SYNTAX_STYLE_CSS, bg, menu);
-		addSyntaxItem("Dockerfile", "DockerfileExample.txt", SYNTAX_STYLE_DOCKERFILE, bg, menu);
-		addSyntaxItem("Go", "GoExample.txt", SYNTAX_STYLE_GO, bg, menu);
-		addSyntaxItem("Handlebars", "HandlebarsExample.txt", SYNTAX_STYLE_HANDLEBARS, bg, menu);
-		addSyntaxItem("Hosts", "HostsExample.txt", SYNTAX_STYLE_HOSTS, bg, menu);
-		addSyntaxItem("HTML", "HtmlExample.txt", SYNTAX_STYLE_HTML, bg, menu);
-		addSyntaxItem("INI", "IniExample.txt", SYNTAX_STYLE_INI, bg, menu);
-		addSyntaxItem("Java", "JavaExample.txt", SYNTAX_STYLE_JAVA, bg, menu);
-		addSyntaxItem("JavaScript", "JavaScriptExample.txt", SYNTAX_STYLE_JAVASCRIPT, bg, menu);
-		addSyntaxItem("JSP", "JspExample.txt", SYNTAX_STYLE_JSP, bg, menu);
-		addSyntaxItem("JSON", "JsonExample.txt", SYNTAX_STYLE_JSON_WITH_COMMENTS, bg, menu);
-		addSyntaxItem("Kotlin", "KotlinExample.txt", SYNTAX_STYLE_KOTLIN, bg, menu);
-		addSyntaxItem("LaTeX", "LatexExample.txt", SYNTAX_STYLE_LATEX, bg, menu);
-		addSyntaxItem("Less", "LessExample.txt", SYNTAX_STYLE_LESS, bg, menu);
-		addSyntaxItem("Markdown", "MarkdownExample.txt", SYNTAX_STYLE_MARKDOWN, bg, menu);
-		addSyntaxItem("Perl", "PerlExample.txt", SYNTAX_STYLE_PERL, bg, menu);
-		addSyntaxItem("PHP",  "PhpExample.txt", SYNTAX_STYLE_PHP, bg, menu);
-		addSyntaxItem("Proto", "ProtoExample.txt", SYNTAX_STYLE_PROTO, bg, menu);
-		addSyntaxItem("Python",  "PythonExample.txt", SYNTAX_STYLE_PYTHON, bg, menu);
-		addSyntaxItem("Ruby", "RubyExample.txt", SYNTAX_STYLE_RUBY, bg, menu);
-		addSyntaxItem("Rust", "RustExample.txt", SYNTAX_STYLE_RUST, bg, menu);
-		addSyntaxItem("SQL",  "SQLExample.txt", SYNTAX_STYLE_SQL, bg, menu);
-		addSyntaxItem("TypeScript", "TypeScriptExample.txt", SYNTAX_STYLE_TYPESCRIPT, bg, menu);
-		addSyntaxItem("VHDL", "VhdlExample.txt", SYNTAX_STYLE_VHDL, bg, menu);
-		addSyntaxItem("XML",  "XMLExample.txt", SYNTAX_STYLE_XML, bg, menu);
-		addSyntaxItem("YAML", "YamlExample.txt", SYNTAX_STYLE_YAML, bg, menu);
-		menu.getItem(2).setSelected(true);
-		mb.add(menu);
+           ButtonGroup bg = new ButtonGroup();
+
+           // Nuevo código para cumplir con OCP:
+         SyntaxConfig syntaxConfig = new SyntaxConfig();
+         for (SyntaxDefinition def : syntaxConfig.getSyntaxes()) {
+         addSyntaxItem(def.getName(), def.getResource(), def.getStyle(), bg, menu);
+}
+
+menu.getItem(0).setSelected(true);
+mb.add(menu);
+
 
 		menu = new JMenu("View");
 		JMenu foldStyleSubMenu = new JMenu("Fold Region Style");
@@ -310,21 +288,14 @@ public class DemoRootPane extends JRootPane implements HyperlinkListener,
 	 *
 	 * @param resource The resource to load.
 	 */
-	private void setText(String resource) {
-		BufferedReader r;
-		try {
-			r = new BufferedReader(new InputStreamReader(
-					getClass().getResourceAsStream(resource), StandardCharsets.UTF_8));
-			textArea.read(r, null);
-			r.close();
-			textArea.setCaretPosition(0);
-			textArea.discardAllEdits();
-		} catch (RuntimeException re) {
-			throw re; // FindBugs
-		} catch (Exception e) { // Never happens
-			textArea.setText("Type here to see syntax highlighting");
-		}
-	}
+    private void setText(String resource) {
+     FileLoader loader = new FileLoader();
+     String content = loader.load(resource);
+     textArea.setText(content);
+     textArea.setCaretPosition(0);
+     textArea.discardAllEdits();
+}
+
 
 	/**
 	 * Shows the About dialog.
@@ -706,6 +677,7 @@ public class DemoRootPane extends JRootPane implements HyperlinkListener,
 		public int getMaxLength(int maxLineNumber) {
 			return String.valueOf(maxLineNumber).length();
 		}
+		
 	}
 
 

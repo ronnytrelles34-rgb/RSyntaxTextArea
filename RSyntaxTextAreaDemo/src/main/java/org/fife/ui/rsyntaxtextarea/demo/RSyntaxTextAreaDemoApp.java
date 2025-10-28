@@ -3,6 +3,8 @@ package org.fife.ui.rsyntaxtextarea.demo;
 import java.awt.Toolkit;
 import javax.swing.*;
 
+import org.fife.ui.rsyntaxtextarea.demo.DemoRootPane.HinduArabicLineNumberFormatter.IRootPane;
+
 
 /**
  * Standalone version of the demo.
@@ -14,7 +16,9 @@ public final class RSyntaxTextAreaDemoApp extends JFrame {
 
 
 	private RSyntaxTextAreaDemoApp() {
-		setRootPane(new DemoRootPane());
+		IRootPane rootPane = new DemoRootPane();
+          setRootPane((JRootPane) rootPane);
+
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("RSyntaxTextArea Demo Application");
 		pack();
